@@ -69,7 +69,7 @@ All segments but the first has the following metadata:
 		0x01 = first segment, i.e. segment 0
 		0x02 = other segments
 
-	16 bit segment 0 address
+	32 bit segment 0 address
 
 	16 bit segment length
 
