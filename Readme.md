@@ -76,6 +76,10 @@ mod-folding down to the required size:
 	http://www.isthe.com/chongo/tech/comp/fnv/
 	http://en.wikipedia.org/wiki/Fowler–Noll–Vo_hash_function
 
+The implementation used sets hval to the 32bit offset bias whenever hval has a
+value of zero. This is to avoid the issue noted where otherwise a buffer of all
+0s hashes to a value of 0.
+
 Segment Metadata
 ================
 
