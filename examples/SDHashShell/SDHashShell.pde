@@ -262,9 +262,9 @@ void handleInput() {
       if (ret != SDH_OK) handleError(ret);
       
       if (len == 0) {
-        Serial.print(buf[0]);
+        Serial.print(buf[sizeof(SDHAddress)]);
         Serial.print(" ");
-        Serial.println(*((SDHAddress*)(buf+1)), DEC);
+        Serial.println(*((SDHAddress*)(buf)), DEC);
         
       }
       off += sizeof buf;

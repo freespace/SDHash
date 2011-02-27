@@ -155,17 +155,19 @@ To facilitate discovery of files stored in SDHash, a special file called
 `__LOG` is used to keep track of filenames. Any time a file is created, its
 segment 0 address is appended to `__LOG` as:
 
-	'c' addrLowByte addrHighByte
+	addressbytes 'c'
 
 Files can be omitted from `__LOG` if they also begin with 2 underscores. This
 conveniently means the same create file function can be used to create `__LOG`.
+By placing the type byte last, we can detect incomplete log entries by
+requiring all log entries to end in 'c'.
 
 When files are deleted, they are not removed from `__LOG`, but written to it
 again with
 
-	'd' addrLowByte addrHighByte
+	addressbytes 'd'
 
-This is done to aid faster creation/deletion. This might change in the future.
+This is done to aid faster creation/deletion. This might change in the future. 
 
 Mod-Folding
 ===========

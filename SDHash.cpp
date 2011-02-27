@@ -530,9 +530,9 @@ uint8_t SDHashClass::_writeSegment(SDHAddress seg0addr, SDHAddress addr, uint8_t
 #ifdef LOGGING_ENABLED
 uint8_t SDHashClass::_appendLog(SDHLogEntryType type, SDHAddress seg0addr) {
 	uint8_t entry[sizeof type + sizeof seg0addr];
-	entry[0] = type;
 	seg0addr = _BSWAP32(seg0addr);
-	memcpy(entry+1, &seg0addr, sizeof seg0addr);
+	memcpy(entry, &seg0addr, sizeof seg0addr);
+	entry[sizeof seg0addr] = type;
 	return appendFile(kSDHashLogFilenameHash, entry, sizeof entry);
 }
 #endif
