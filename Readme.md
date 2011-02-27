@@ -132,7 +132,7 @@ Deletions
 =========
 
 Files are deleted by zero'ing each of its segments, including segment 0.
-Additionally deletions are recorded in __LOG if file is not a hidden file.
+Additionally deletions are recorded in `__LOG` if file is not a hidden file.
 
 Hashtable Metadata
 ==================
@@ -151,18 +151,20 @@ Files Metadata and Hidden Files
 ===============================
 
 To facilitate discovery of files stored in SDHash, a special file called
-'__LS' is used to keep track of filenames. Any time a file is created, its
-segment 0 address is appended to __LOG as:
+`__LOG` is used to keep track of filenames. Any time a file is created, its
+segment 0 address is appended to `__LOG` as:
 
 	'c' addrLowByte addrHighByte
 
-Files can be omitted from __LOG if they also begin with 2 underscores. This
-conveniently means the same create file function can be used to create __LS.
+Files can be omitted from `__LOG` if they also begin with 2 underscores. This
+conveniently means the same create file function can be used to create `__LOG`.
 
-When files are deleted, they are not removed from __LS, but written to it again
-with
+When files are deleted, they are not removed from `__LOG`, but written to it
+again with
 
 	'd' addrLowByte addrHighByte
+
+This is done to aid faster creation/deletion. This might change in the future.
 
 Mod-Folding
 ===========
@@ -181,7 +183,7 @@ encountered. This is done to ease interpolation with AVRs.
 Implementation Issues
 =====================
 
-The library currently uses uint16_t (SDHDataSize) for expressing the amount of
+The library currently uses `uint16_t` (SDHDataSize) for expressing the amount of
 data to read/write to files. This is done to conserve stack space, and since
 even the 328 doesn't have 16k of SRAM.
 
