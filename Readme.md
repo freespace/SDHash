@@ -9,27 +9,32 @@ To this end SDHash was created, where we treat the SD cards as a giant
 hashtable. That and I thought it might be fun to 'design' a trivial filesystem
 and implement it.
 
-Note that if program size is the primary concern, then the tinyFAT library by
-Henning Karlsen is smaller for basic operations.  e.g. reading a file using
-tinyFAT comes to ~5k while a similar example using SDHash comes to ~7.5k.
-However use of tinyFAT requires a 512 byte buffer - half the SRAM available -
-while SDHash has no such requirement.
+Comparison to FAT libraries
+===========================
+
+In comparison to FAT based libraries, SDHash consistently produces smaller
+programs and uses less RAM. A simple create-write-read-delete program with a
+126 character string as payload compiles to 7.8K. tinyFAT, the smallest FAT
+library I can find that offers the same functions does the same thing in 10.3K.
 
 tinyFAT can be found at:
 
 	http://henningkarlsen.com/electronics/a_l_tinyfat.php
 
-Other alternatives include uFAT and SDuFAT available at:
+Other alternatives (with more limitations) include uFAT and SDuFAT available
+at:
 
 	http://arduinonut.blogspot.com/2008/04/ufat.html
 	http://blushingboy.net/p/SDuFAT/page/SDuFAT-basic/
 
-The advantages of these methods is that the card data can easily read on a
-desktop, while SDHash by virtue of its ad-hoc nature requires custom programs
-and/or FUSE modules.
+An advantage of the FAT approach is interoperability with desktop computers.
+SDHash will likely gain a FUSE module in the future, but until then getting the
+data off the SD card is an excercise left to the reader. As such I do recommend
+trying the FAT approaches before using SDHash.
 
-In theory it is possible to use the *uFAT solutions in combination with SDHash,
-but this doesn't really solve the problem of extracting data.
+Note that the above FAT libraries all require 512 byte buffer for write
+operations. SDHash has no such requirement because it can generate padding 0x0
+bytes.
 
 Credit
 ======
