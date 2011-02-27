@@ -31,6 +31,17 @@ and/or FUSE modules.
 In theory it is possible to use the *uFAT solutions in combination with SDHash,
 but this doesn't really solve the problem of extracting data.
 
+Credit
+======
+
+Many thanks to the developers of sdfatlib:
+
+	http://code.google.com/p/sdfatlib/
+
+Their excellent Sd2Card library was instrumental in developing SDHash quickly.
+I have modified it to allow for writing blocks using less than 512 bytes of
+data, with the difference being generated and provided to the SD card.
+
 Overview
 ========
 
@@ -97,7 +108,6 @@ Note that the first segment stores no data *at all*. This is because we need
 to update it for each new segment appended, and it is difficult to do subblock
 modifications of a full block with little RAM.
 
-
 Collisions
 ==========
 
@@ -144,8 +154,8 @@ segment 0 address is appended to __LOG as:
 Files can be omitted from __LOG if they also begin with 2 underscores. This
 conveniently means the same create file function can be used to create __LS.
 
-When files are deleted, they are not removed from __LS, but written to it
-again with
+When files are deleted, they are not removed from __LS, but written to it again
+with
 
 	'd' addrLowByte addrHighByte
 
