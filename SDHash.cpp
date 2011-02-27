@@ -218,11 +218,11 @@ uint8_t SDHashClass::appendFile(SDHFilehandle fh, uint8_t* data, SDHDataSize len
 	if (ret != SDH_OK) return ret;
 
 	// bring the hash 'up to date'
-	for(uint16_t cnt = 0; cnt < finfo.segments_count; ++cnt) {
+	for(SDHSegmentCount cnt = 0; cnt < finfo.segments_count; ++cnt) {
 		fh = _incHash(fh);
 	}
 
-	uint16_t seg_len;
+	SDHDataSize seg_len;
 	do {
 		seg_len = min(kSDHashSegmentDataSize, len);
 		SDHAddress seg_addr = _foldHash(fh);
