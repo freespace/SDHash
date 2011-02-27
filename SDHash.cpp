@@ -45,7 +45,7 @@
 
 static const uint8_t kSDHashMagic[5] = {0xae, 'h', 'a', 's', 'h'};
 // magic + 1 byte of version +  bytes of bucket count
-#define kSDHashHeaderSize (5 + 1 + 4)
+#define kSDHashHeaderSize (sizeof kSDHashMagic + 1 + sizeof(SDHBucketCount))
 
 #define kSDHashMaxFilenameLength (23)
 // type + hash + segment count
@@ -123,6 +123,13 @@ uint8_t SDHashClass::begin() {
 		Serial_print(" buckets=");
 		Serial_println(_hashInfo.buckets);
 
+		// make sure our buckets count is smaller than cardsize
+		// otherwise things are going to go haywire
+		if (_hashInfo.buckets > _card.cardSize()) {
+			Serial_println("card isn't big enough");
+			return SDH_ERR_CARD;
+		}
+
 		if (statFile(kSDHashLogFilenameHash, NULL, NULL) == SDH_ERR_FILE_NOT_FOUND) {
 			return SDHash.createFile(kSDHashLogFilenameHash, kSDHashLogFilename);
 		}
@@ -136,7 +143,7 @@ uint8_t SDHashClass::begin() {
 			memcpy(header, kSDHashMagic, sizeof kSDHashMagic);
 			header[sizeof kSDHashMagic] = _hashInfo.version;
 
-			_hashInfo.buckets = _BSWAP16(_hashInfo.buckets);
+			_hashInfo.buckets = _BSWAP32(_hashInfo.buckets);
 			memcpy(header + sizeof kSDHashMagic + 1, &_hashInfo.buckets, sizeof _hashInfo.buckets);
 
 			if (_card.writeBlock(0, header, sizeof header)) {
@@ -498,7 +505,7 @@ uint8_t SDHashClass::_writeSegment(SDHAddress seg0addr, SDHAddress addr, uint8_t
 	if (!_card.writeData(type, sizeof type, ofs)) return SDH_ERR_SD;
 	ofs += sizeof type;
 
-	seg0addr = _BSWAP16(seg0addr);
+	seg0addr = _BSWAP32(seg0addr);
 	if (!_card.writeData((uint8_t*)&seg0addr, sizeof seg0addr, ofs)) return SDH_ERR_SD;
 	ofs += sizeof seg0addr;
 
@@ -519,7 +526,7 @@ uint8_t SDHashClass::_writeSegment(SDHAddress seg0addr, SDHAddress addr, uint8_t
 uint8_t SDHashClass::_appendLog(uint8_t type, SDHAddress seg0addr) {
 	uint8_t entry[sizeof type + sizeof seg0addr];
 	entry[0] = type;
-	seg0addr = _BSWAP16(seg0addr);
+	seg0addr = _BSWAP32(seg0addr);
 	memcpy(entry+1, &seg0addr, sizeof seg0addr);
 	return appendFile(kSDHashLogFilenameHash, entry, sizeof entry);
 }
@@ -544,7 +551,7 @@ bool SDHashClass::_getHashInfo() {
 	
 	memcpy(&_hashInfo.buckets, header+sizeof kSDHashMagic + 1, sizeof _hashInfo.buckets);
 
-	_hashInfo.buckets = _BSWAP16(_hashInfo.buckets);
+	_hashInfo.buckets = _BSWAP32(_hashInfo.buckets);
 
 	return true;
 }

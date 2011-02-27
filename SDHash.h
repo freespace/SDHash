@@ -49,10 +49,11 @@ typedef uint32_t SDHAddress;
 typedef uint32_t SDHFilehandle;
 typedef uint16_t SDHSegmentCount;
 typedef uint16_t SDHDataSize;
+typedef uint32_t SDHBucketCount;
 
 typedef struct {
 	uint8_t version;
-	uint16_t buckets;
+	SDHBucketCount buckets;
 } HashInfo;
 
 typedef struct {
