@@ -47,13 +47,14 @@ Their excellent Sd2Card library was instrumental in developing SDHash quickly.
 I have modified it to allow for writing blocks using less than 512 bytes of
 data, with the difference being generated and provided to the SD card.
 
-Overview
-========
+How it Works
+============
 
 SDHash treats the SD card as a giant hashtable where buckets map to blocks,
 and keys map to addresses. Files are stored in buckets as segments. Files are
 stored sparsely, meaning each segment is not necessarily 512 bytes long. So
-while a file may take up 5 buckets, its size is (probably) < 512 bytes.
+while a file may take up 5 buckets, its size is probably smaller than 5x512 
+bytes.
 
 Hash Table Keying
 =================
@@ -190,3 +191,4 @@ even the 328 doesn't have 16k of SRAM.
 Furthermore, though the specification above calls for using the 23 character
 filename to do comparisons when the 32bit hash collides, it isn't actually done
 at the moment.
+
