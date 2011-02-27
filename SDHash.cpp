@@ -396,42 +396,11 @@ uint8_t SDHashClass::findSeg(SDHFilehandle fh, uint16_t segmentNumber, SDHAddres
 }
 		
 uint8_t SDHashClass::statSeg(SDHAddress addr, SegmentInfo* sinfo) {
-	uint8_t meta[kSDHashSegmentMetaSize];
-	if (!_card.readData(addr, 0, sizeof meta, meta)) {
-		return SDH_ERR_SD;
-	}
-
-	if (meta[0] == kSDHashSegment) {
-		if (sinfo) {
-			memcpy(&sinfo->segment0_addr, meta+1, sizeof sinfo->segment0_addr);
-			memcpy(&sinfo->length, meta+1+sizeof sinfo->segment0_addr, sizeof sinfo->length);
-			sinfo->length = _BSWAP16(sinfo->length);
-		}
-
-		return SDH_OK;
-	} else if (meta[0] == kSDHashFreeSegment) return SDH_ERR_FILE_NOT_FOUND;
-
-	return SDH_ERR_WRONG_SEGMENT_TYPE;
+	return _statSeg(addr, kSDHashSegment, sinfo);
 }
 
 uint8_t SDHashClass::statSeg0(SDHAddress addr, FileInfo *finfo) {
-	// type + hash + seg count
-	uint8_t meta[kSDHashSegment0MetaHeaderSize];
-	if (!_card.readData(addr, 0, sizeof meta, meta)) {
-		return SDH_ERR_SD;
-	}
-
-	if (meta[0] == kSDHashSegment0) {
-		if (finfo) {
-			memcpy(&finfo->hash, meta+1, sizeof finfo->hash);
-			memcpy(&finfo->segments_count, meta+1+sizeof finfo->hash, sizeof finfo->segments_count);
-			finfo->segments_count = _BSWAP16(finfo->segments_count);
-		}
-
-		return SDH_OK;
-	} else if (meta[0] == kSDHashFreeSegment) return SDH_ERR_FILE_NOT_FOUND;
-
-	return SDH_ERR_WRONG_SEGMENT_TYPE;
+	return _statSeg(addr, kSDHashSegment0, finfo);
 }
 
 uint8_t SDHashClass::statFile(SDHFilehandle fh, FileInfo *finfo, SDHAddress *addrPtr) {
@@ -485,6 +454,45 @@ uint8_t SDHashClass::truncateFile(SDHFilehandle fh, SDHSegmentCount count) {
 /***************************************************************
  * Private Methods
  * *************************************************************/
+uint8_t SDHashClass::_statSeg(SDHAddress addr, uint8_t type, void *info) {
+	switch(type) {
+		case kSDHashSegment0:
+		case kSDHashSegment:
+			break;
+		default:
+			return SDH_ERR_INVALID_ARGUMENT;
+	}
+
+	uint8_t meta[kSDHashSegment0MetaHeaderSize];
+	if (!_card.readData(addr, 0, sizeof meta, meta)) {
+		return SDH_ERR_SD;
+	}
+
+	if (meta[0] == type) {
+		if (info) {
+			if (type == kSDHashSegment0) {
+				FileInfo *finfo = (FileInfo*)info;
+				memcpy(&finfo->hash, meta+1, sizeof finfo->hash);
+				memcpy(&finfo->segments_count, meta+1+sizeof finfo->hash, sizeof finfo->segments_count);
+				finfo->segments_count = _BSWAP16(finfo->segments_count);
+			} else if (type == kSDHashSegment) {
+				SegmentInfo *sinfo = (SegmentInfo*)info;
+				memcpy(&sinfo->segment0_addr, meta+1, sizeof sinfo->segment0_addr);
+				memcpy(&sinfo->length, meta+1+sizeof sinfo->segment0_addr, sizeof sinfo->length);
+				sinfo->length = _BSWAP16(sinfo->length);
+			} 
+		}
+		return SDH_OK;
+	} else {
+		switch(meta[0]) {
+			case kSDHashSegment:
+			case kSDHashSegment0:
+				return SDH_ERR_WRONG_SEGMENT_TYPE;
+			default:
+				return SDH_ERR_FILE_NOT_FOUND;
+			}
+	}
+}
 uint8_t SDHashClass::_updateSeg0SegmentsCount(SDHAddress seg0addr, uint16_t segments_count) {
 	// we have to read in the entire metadata b/c we need to preserve 
 	// the filename too

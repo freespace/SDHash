@@ -191,6 +191,7 @@ class SDHashClass {
 		uint8_t _writeSegment(SDHAddress seg0addr, SDHAddress addr, uint8_t *data, SDHDataSize len);
 		uint8_t _updateSeg0SegmentsCount(SDHAddress seg0addr, SDHSegmentCount segments_count);
 		uint8_t _appendLog(uint8_t type, SDHAddress seg0addr);
+		uint8_t _statSeg(SDHAddress addr, uint8_t type, void *info);
 };
 
 extern SDHashClass SDHash;
