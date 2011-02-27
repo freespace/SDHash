@@ -59,13 +59,6 @@ static const uint8_t kSDHashMagic[5] = {0xae, 'h', 'a', 's', 'h'};
 
 #define kSDHashSegmentDataSize (512-kSDHashSegmentMetaSize)
 
-
-enum {
-	kSDHashFreeSegment = 0x00,
-	kSDHashSegment0 = 0x01,
-	kSDHashSegment = 0x02,
-};
-
 uint32_t SDHashClass::fnv(uint8_t *buf, size_t len, uint32_t hval) {
 	Serial_print("fnv:0x");
 	Serial_print(hval, HEX);
@@ -204,7 +197,7 @@ uint8_t SDHashClass::createFile(SDHFilehandle fh, const char *filename, uint8_t 
 
 		if (namelen >=kSDHashHiddenFilenamePrefixLen) {
 			if (memcmp(filename, kSDHashHiddenFilenamePrefix, kSDHashHiddenFilenamePrefixLen)) {
-				uint8_t ret = _appendLog(kSDHashJournalCreate, addr);
+				uint8_t ret = _appendLog(kSDHashLogCreate, addr);
 				if (ret != SDH_OK) return ret;
 			}
 		}
@@ -281,7 +274,7 @@ uint8_t SDHashClass::deleteFile(SDHFilehandle fh) {
 
 	if (memcmp(prefix, kSDHashHiddenFilenamePrefix, sizeof prefix)) {
 		// if it ISN'T then append operation to the log
-		ret = _appendLog(kSDHashJournalDelete, seg0addr);
+		ret = _appendLog(kSDHashLogDelete, seg0addr);
 		if (ret != SDH_OK) return ret;
 	}
 
@@ -395,14 +388,6 @@ uint8_t SDHashClass::findSeg(SDHFilehandle fh, uint16_t segmentNumber, SDHAddres
 	} else return ret;
 }
 		
-uint8_t SDHashClass::statSeg(SDHAddress addr, SegmentInfo* sinfo) {
-	return _statSeg(addr, kSDHashSegment, sinfo);
-}
-
-uint8_t SDHashClass::statSeg0(SDHAddress addr, FileInfo *finfo) {
-	return _statSeg(addr, kSDHashSegment0, finfo);
-}
-
 uint8_t SDHashClass::statFile(SDHFilehandle fh, FileInfo *finfo, SDHAddress *addrPtr) {
 	SDHAddress addr = _foldHash(fh);
 	SDHAddress addr0 = addr;
@@ -454,7 +439,7 @@ uint8_t SDHashClass::truncateFile(SDHFilehandle fh, SDHSegmentCount count) {
 /***************************************************************
  * Private Methods
  * *************************************************************/
-uint8_t SDHashClass::_statSeg(SDHAddress addr, uint8_t type, void *info) {
+uint8_t SDHashClass::_statSeg(SDHAddress addr, SDHSegmentType type, void *info) {
 	switch(type) {
 		case kSDHashSegment0:
 		case kSDHashSegment:
@@ -531,7 +516,7 @@ uint8_t SDHashClass::_writeSegment(SDHAddress seg0addr, SDHAddress addr, uint8_t
 	return SDH_OK;
 }
 
-uint8_t SDHashClass::_appendLog(uint8_t type, SDHAddress seg0addr) {
+uint8_t SDHashClass::_appendLog(SDHLogEntryType type, SDHAddress seg0addr) {
 	uint8_t entry[sizeof type + sizeof seg0addr];
 	entry[0] = type;
 	seg0addr = _BSWAP32(seg0addr);

@@ -40,10 +40,16 @@ enum {
 	SDH_ERR_CARD, // something is wrong about the card
 };
 
-enum {
-	kSDHashJournalCreate = 'c',
-	kSDHashJournalDelete = 'd',
-};
+typedef enum {
+	kSDHashLogCreate = 'c',
+	kSDHashLogDelete = 'd',
+} SDHLogEntryType;
+
+typedef enum {
+	kSDHashFreeSegment = 0x00,
+	kSDHashSegment0 = 0x01,
+	kSDHashSegment = 0x02,
+} SDHSegmentType;
 
 typedef uint32_t SDHAddress;
 typedef uint32_t SDHFilehandle;
@@ -190,8 +196,8 @@ class SDHashClass {
 		uint32_t _incHash(uint32_t hash);
 		uint8_t _writeSegment(SDHAddress seg0addr, SDHAddress addr, uint8_t *data, SDHDataSize len);
 		uint8_t _updateSeg0SegmentsCount(SDHAddress seg0addr, SDHSegmentCount segments_count);
-		uint8_t _appendLog(uint8_t type, SDHAddress seg0addr);
-		uint8_t _statSeg(SDHAddress addr, uint8_t type, void *info);
+		uint8_t _appendLog(SDHLogEntryType type, SDHAddress seg0addr);
+		uint8_t _statSeg(SDHAddress addr, SDHSegmentType type, void *info);
 };
 
 extern SDHashClass SDHash;
@@ -211,5 +217,13 @@ inline SDHFilehandle SDHashClass::filehandle(uint8_t *buf, size_t len) {
 
 inline uint8_t SDHashClass::truncateSegment(SDHFilehandle fh, SDHSegmentCount segNumber) {
 	return replaceSegment(fh, segNumber, NULL, 0);
+}
+
+inline uint8_t SDHashClass::statSeg(SDHAddress addr, SegmentInfo* sinfo) {
+	return _statSeg(addr, kSDHashSegment, sinfo);
+}
+
+inline uint8_t SDHashClass::statSeg0(SDHAddress addr, FileInfo *finfo) {
+	return _statSeg(addr, kSDHashSegment0, finfo);
 }
 #endif
