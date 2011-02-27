@@ -95,7 +95,7 @@ produce 'sparse' files where each segment is mostly empty.
 
 Note that the first segment stores no data *at all*. This is because we need
 to update it for each new segment appended, and it is difficult to do subblock
-modifications of a fullblock with little RAM.
+modifications of a full block with little RAM.
 
 
 Collisions
@@ -122,15 +122,14 @@ Additionally deletions are recorded in __LOG if file is not a hidden file.
 Hashtable Metadata
 ==================
 
-Since segment address of 0 is used to signal deletion, segment 0 is't used for
-file storage. We exploit this using this segment to allow us to identify a SD
-card being used as Aethernet hashtable storage, to identify which version of
-hashtable spec is being followed, and the number of buckets in the event
-a smaller SD card was bit-for-bit copied to a larger one.
+The first block on the SD card is reserved for hashtable metadata and magic,
+which allow us to identify a SDHash SD card and to identify which version of
+hashtable spec is being followed. Additionally the number of buckets is also
+stored in the event a smaller SD card was bit-for-bit copied to a larger one.
 
 	0xae 'h' 'a' 's' 'h'
 	version  number, e.g. 0x01
-	16bit table size (number of buckets)
+	32bit table size (number of buckets)
 
 
 Files Metadata and Hidden Files
