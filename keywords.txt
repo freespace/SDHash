@@ -1,0 +1,49 @@
+#######################################
+# Syntax Coloring Map SD
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+SDHash	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+begin	KEYWORD2
+validCard	KEYWORD2
+filehandle	KEYWORD2
+fnv	KEYWORD2
+card	KEYWORD2
+zero	KEYWORD2
+zeroMagic	KEYWORD2
+sdErrorCode	KEYWORD2
+createFile	KEYWORD2
+statFile	KEYWORD2
+statSeg	KEYWORD2
+statSeg0	KEYWORD2
+findSeg	KEYWORD2
+appendFile	KEYWORD2
+readFile	KEYWORD2
+replaceSegment	KEYWORD2
+deleteFile	KEYWORD2
+truncateFile	KEYWORD2
+truncateSegment	KEYWORD2
+#######################################
+# Constants (LITERAL1)
+#######################################
+SDH_OK	LITERAL1
+SDH_ERR_FILE_NOT_FOUND	LITERAL1
+SDH_ERR_NO_SPACE	LITERAL1
+SDH_ERR_FILENAME	LITERAL1
+SDH_ERR_SD	LITERAL1
+SDH_ERR_FILE_EXISTS	LITERAL1
+SDH_ERR_DATA_OVERFLOW	LITERAL1
+SDH_ERR_WRONG_SEGMENT_TYPE	LITERAL1
+SDH_ERR_INVALID_ARGUMENT	LITERAL1
+SDH_ERR_MISSIG_SEGMENT	LITERAL1
+SDHAddress	LITERAL1
+SDHFilehandle	LITERAL1
+SDHDataSize	LITERAL1
+SDHSegmentCount	LITERAL1
