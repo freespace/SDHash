@@ -3,7 +3,7 @@ Introduction
 
 The SD library that comes with Arduinos uses FAT12/16 which means the compiled
 code size is relatively large, and not suitable for sketches that require
-file-like management while doing non-trivial tasks.
+file-like features while doing non-trivial tasks.
 
 To this end SDHash was created, where we treat the SD cards as a giant
 hashtable. That and I thought it might be fun to 'design' a trivial filesystem
@@ -62,9 +62,7 @@ mod-folding down to the required size:
 Segment Metadata
 ================
 
-Segments store 512 bytes of data, less any used for metadata storage.
-
-All segments metadata:
+All segments but the first has the following metadata:
 
 	8 bit segment type:
 		0x00 = free segment
