@@ -69,9 +69,10 @@ uint32_t SDHashClass::fnv(uint8_t *buf, size_t len, uint32_t hval) {
 	Serial_print(hval, HEX);
 	Serial_print(" .. ");
 	uint8_t *end = buf+len;
+	if (!hval) hval = 2166136261;
 	for(;buf < end;++buf) {
-		hval += (hval<<1) + (hval<<4) + (hval<<7) + (hval<<8) + (hval<<24);
 		hval ^= (uint32_t)*buf;
+		hval += (hval<<1) + (hval<<4) + (hval<<7) + (hval<<8) + (hval<<24);
 	}
 	Serial_print("0x");
 	Serial_println(hval, HEX);
