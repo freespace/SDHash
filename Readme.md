@@ -9,7 +9,7 @@ To this end SDHash was created, where we treat the SD cards as a giant
 hashtable. That and I thought it might be fun to 'design' a trivial filesystem
 and implement it.
 
-Comparison to FAT libraries
+Comparison to FAT Libraries
 ===========================
 
 In comparison to FAT based libraries, SDHash consistently produces smaller
@@ -184,3 +184,7 @@ Implementation Issues
 The library currently uses uint16_t (SDHDataSize) for expressing the amount of
 data to read/write to files. This is done to conserve stack space, and since
 even the 328 doesn't have 16k of SRAM.
+
+Furthermore, though the specification above calls for using the 23 character
+filename to do comparisons when the 32bit hash collides, it isn't actually done
+at the moment.
