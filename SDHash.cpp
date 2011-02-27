@@ -20,6 +20,11 @@
 */
 #include "SdFatUtil.h"
 #include "SDHash.h"
+
+// disable this if you don't want the logging feature which provides
+// some speed ups when creating and deleting files, and also
+// makes the code a *little* smaller
+#define LOGGING_ENABLED
 ///#define SERIAL_DEBUG
 
 #ifdef SERIAL_DEBUG
@@ -122,10 +127,11 @@ uint8_t SDHashClass::begin() {
 			Serial_println("card isn't big enough");
 			return SDH_ERR_CARD;
 		}
-
+#ifdef LOGGING_ENABLED
 		if (statFile(kSDHashLogFilenameHash, NULL, NULL) == SDH_ERR_FILE_NOT_FOUND) {
 			return SDHash.createFile(kSDHashLogFilenameHash, kSDHashLogFilename);
 		}
+#endif
 		return SDH_OK;
 	} else {
 		_hashInfo.version = 1;
@@ -147,9 +153,12 @@ uint8_t SDHashClass::begin() {
 				Serial_println(_card.errorCode(), HEX);
 				return SDH_ERR_SD;
 			}
-
+#ifdef LOGGING_ENABLED
 			SDHash.deleteFile(kSDHashLogFilenameHash);
 			return SDHash.createFile(kSDHashLogFilenameHash, kSDHashLogFilename);
+#else
+			return SDH_OK;
+#endif
 		} else {
 			Serial_println("card has no buckets?");
 			return SDH_ERR_CARD;
@@ -195,13 +204,14 @@ uint8_t SDHashClass::createFile(SDHFilehandle fh, const char *filename, uint8_t 
 		
 		if(!_card.writeStop()) return SDH_ERR_SD;
 
+#ifdef LOGGING_ENABLED
 		if (namelen >=kSDHashHiddenFilenamePrefixLen) {
 			if (memcmp(filename, kSDHashHiddenFilenamePrefix, kSDHashHiddenFilenamePrefixLen)) {
 				uint8_t ret = _appendLog(kSDHashLogCreate, addr);
 				if (ret != SDH_OK) return ret;
 			}
 		}
-
+#endif
 		if (data && len) return appendFile(fh, data, len); 
 
 		return SDH_OK;
@@ -266,6 +276,7 @@ uint8_t SDHashClass::deleteFile(SDHFilehandle fh) {
 	uint8_t ret = statFile(fh, &finfo, &seg0addr);
 	if (ret != SDH_OK) return ret;
 
+#ifdef LOGGING_ENABLED	
 	// check to see if this is a hidden file
 	uint8_t prefix[kSDHashHiddenFilenamePrefixLen];
 	if (!_card.readData(seg0addr, kSDHashSegment0MetaHeaderSize,sizeof prefix, prefix)) {
@@ -277,7 +288,7 @@ uint8_t SDHashClass::deleteFile(SDHFilehandle fh) {
 		ret = _appendLog(kSDHashLogDelete, seg0addr);
 		if (ret != SDH_OK) return ret;
 	}
-
+#endif
 	if (!_card.writeBlock(seg0addr, type, sizeof type)) {
 		return SDH_ERR_SD;
 	}
@@ -516,6 +527,7 @@ uint8_t SDHashClass::_writeSegment(SDHAddress seg0addr, SDHAddress addr, uint8_t
 	return SDH_OK;
 }
 
+#ifdef LOGGING_ENABLED
 uint8_t SDHashClass::_appendLog(SDHLogEntryType type, SDHAddress seg0addr) {
 	uint8_t entry[sizeof type + sizeof seg0addr];
 	entry[0] = type;
@@ -523,7 +535,7 @@ uint8_t SDHashClass::_appendLog(SDHLogEntryType type, SDHAddress seg0addr) {
 	memcpy(entry+1, &seg0addr, sizeof seg0addr);
 	return appendFile(kSDHashLogFilenameHash, entry, sizeof entry);
 }
-
+#endif
 uint32_t SDHashClass::_incHash(uint32_t hash) {
 	return fnv((uint8_t*)&hash, sizeof hash, hash);
 }
